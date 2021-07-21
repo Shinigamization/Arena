@@ -1,0 +1,63 @@
+body {
+  background-color: #a1cae2;
+
+}
+
+td {
+  width: 50px;
+  height: 50px;
+  border: solid 1px;
+  text-align: center;
+}
+
+
+td:hover
+{
+  background-color: yellow;
+}
+td:active {
+
+}
+
+
+.arena-background {
+  width: 46%;
+  background-color: white;
+}
+
+.arena {
+  width: 100%;
+}
+
+.stats {
+background-color: none;
+position: absolute;
+right: 8px;
+top: 8px;
+width: 50%;
+height: 50%;
+border: 5px double;
+}
+
+.action_window {
+  background-color: gray;
+  position: absolute;
+  border: 5px double;
+  right: 8px;
+  bottom: 8px;
+  width: 50%;
+  height: 45%;
+
+}
+
+.graveyard {
+  background-color: blue;
+  display: block;
+
+}
+
+.unit {
+
+    max-width:100%;
+
+}
