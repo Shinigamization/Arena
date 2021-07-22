@@ -1080,19 +1080,34 @@
   </tr>
 </table>
   </div>
-  <div class="stats">
+  <div class="upper_div">
+    <h1 style="color:red">ACTIVE TURN: {{ pl_active_turn[0] }}</h1>
     <h1>Unit stats:</h1>
   </div>
-  <div class="action_window">
+  <div class="lower_div">
     <h1>Action Window:</h1>
 <form method="post">
     <div>
-        <label for="name">Name</label>
-        <input type="text" name="name" />
+        <label for="fighter_name">Choose your fighter:</label>
+        <select id="fighter_name" name="fighter_name">
+          {% for n in player_fighters[pl_active_turn[0]] %}
+            <option value="{{ n }}">{{ n }}</option>
+          {% endfor %}
+        </select>
     </div>
     <div>
         <label for="coordinates">Coordinates</label>
         <input type="text" name="coordinates" />
+    </div>
+    <div>
+      <label for="attack_direction">Attack direction:</label>
+        <select id="attack_direction" name="attack_direction">
+            <option value="UP">&#8593;</option>
+            <option value="RIGHT">&#8594;</option>
+            <option value="DOWN">&#8595;</option>
+            <option value="LEFT">&#8592;</option>
+            <option value="NO">No attack</option>
+        </select>
     </div>
     <div>
         <input type="submit" />

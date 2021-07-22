@@ -29,7 +29,7 @@ td:active {
   width: 100%;
 }
 
-.stats {
+.upper_div {
 background-color: none;
 position: absolute;
 right: 8px;
@@ -39,7 +39,7 @@ height: 50%;
 border: 5px double;
 }
 
-.action_window {
+.lower_div {
   background-color: gray;
   position: absolute;
   border: 5px double;
