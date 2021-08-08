@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, url_for, redirect
 
+
 app = Flask(__name__)
 
 
@@ -32,6 +33,14 @@ player_fighters = {
 }
 
 pl_active_turn = ['Tima', 'Dalamar', 'Shini', 'Dima']
+
+#@app.route('/new', methods=['GET', 'POST'])
+#def new_session():
+
+
+
+
+
 
 
 @app.route('/', methods=['GET', 'POST'])
