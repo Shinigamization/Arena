@@ -32,6 +32,7 @@ player_fighters = {
 
 }
 
+
 pl_active_turn = ['Tima', 'Dalamar', 'Shini', 'Dima']
 
 #@app.route('/new', methods=['GET', 'POST'])
