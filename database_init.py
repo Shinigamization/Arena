@@ -1,170 +1,86 @@
-from datetime import date
-from pony.orm import *
-
-db = Database()
-db.bind(provider='sqlite', filename='database.sqlite', create_db=True)
-
-class Player(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    active_abilities = Set('ActiveAbility')
-    round_log_records = Set('RoundRecord')
-    session = Required('Session')
-    user = Required('User')
-    turn_number = Required(int)  # Очередность ходов
-    units = Set('Unit')
+import json
 
 
-class UnitState(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    unit = Required('Unit')
-    armour = Required('Armour')
-    weapon = Required('Weapon')
-    unit_class = Required('UnitClass')
-    strength = Required(int)
-    toghness = Required(int)
-    reaction = Required(int)
-    spirit = Required(int)
-    speed = Required(int)
-    vitality = Required(int)
-    hp = Required(float)
-    mp = Required(int)
-    mp_regen = Required(int)
-    passive_abilities = Set('PassiveAbility')
-    active_abilities = Set('ActiveAbility')
-    round_logs = Set('RoundRecord')
-    unit_direction = Optional(str)
-    can_act = Required(bool)
-    x_pos = Required(int)
-    y_pos = Required(int)
-    round = Required('Round')
+#Создаёт dict персонажа в базе данных с ключом по ID
+def create_char(player, unit_id, armour, weapon, unit_class, strength, toughness, reaction, spirit, speed, vitality, hp, mp, mp_regen):
+    temp = {unit_id: [player, armour, weapon, unit_class, strength, toughness, reaction, spirit, speed, vitality, hp, mp, mp_regen]}
+    with open('session1/unit_db.json', 'r') as file:
+        unit_db = json.load(file)
+    unit_db.update(temp)
+    with open('session1/unit_db.json', 'w') as file:
+        json.dump(unit_db, file)
 
 
-class Weapon(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    name = Required(str)
-    unitstates = Set(UnitState)
-    damage_mod = Required(float)
-    hp = Required(float)
-    accuarcy = Required(int)
-    weight = Required(float)
-    ignore_armor = Optional(float)
-    ignore_toughness = Optional(float)
-    reaction_bonus = Optional(int)
-    range_bonus = Required(int)
-    damage_type = Required(str)
-    session = Required('Session')
+#очистка выбранной БД
+def db_flush(session, db):
+    with open(f'session{session}/{db}_db.json', 'w') as file:
+        json.dump({}, file)
 
 
-class Armour(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    name = Required(str)
-    unitstates = Set(UnitState)
-    block_damage_mod = Required(float)
-    hp = Required(float)
-    weight = Required(float)
-    session = Required('Session')
+#Создание dict оружия в БД с ключом по ID
+#            <!-- weapon_name, damage_mod, w_hp, w_accuracy, weight, ignore_arm, w_range, damage_type   -->
+def create_weapon(weapon_name, damage_mod, w_hp, w_accuracy, w_weight, ignore_arm, w_range, damage_type):
+    temp = {weapon_name: [damage_mod, w_hp, w_accuracy, w_weight, ignore_arm, w_range, damage_type]}
+    with open ('session1/weapons_db.json', 'r') as file:
+        w_db = json.load(file)
+    w_db.update(temp)
+    with open('session1/weapons_db.json', 'w') as file:
+        json.dump(w_db, file)
 
 
-class UnitClass(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    unitstates = Set(UnitState)
-    name = Required(str)
-    phys_damage_bonus = Optional(float)
-    mag_damage_bonus = Optional(float)
-    block_damage_bonus = Optional(float)
-    active_abilities = Set('ActiveAbility')
+#Создание dict брони в БД с ключом по ID
+#            <!-- arm_name, arm_mod, arm_hp, weight, element_type   -->
+def create_armour(armour_name, arm_mod, arm_hp, arm_weight, element_type):
+    temp = {armour_name: [arm_mod, arm_hp, arm_weight, element_type]}
+    with open ('session1/armour_db.json', 'r') as file:
+        arm_db = json.load(file)
+    arm_db.update(temp)
+    with open('session1/armour_db.json', 'w') as file:
+        json.dump(arm_db, file)
 
 
-class PassiveAbility(db.Entity):
-    id = PrimaryKey(str, auto=True)
-    unitstates = Set(UnitState)
-    weight_bonus = Optional(float)
-    session = Required('Session')
 
 
-class ActiveAbility(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    unitstates = Set(UnitState)
-    players = Set(Player)
-    unit_classs = Set(UnitClass)
-    ability_visible = Required(bool)
-    range = Required(int)
-    area_of_effect = Optional(int)
-    hostile_status = Required(bool)  # Can pick friends or enemies as target
-    round_logs = Set('RoundRecord')
-    use_weapon = Required(bool)
-    damage_mod = Required(float)
-    buff_rounds = Optional(int)
-    mp_price = Required(int)
-    vitality_price = Required(int)
-    damage_type = Optional(str)
-    session = Required('Session')
+#db_flush(1, 'armour')
+#create_char(1, 1,1,1,1,1,1,1,1,1,1,1,1,1)
 
 
-class MapTile(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    passable = Required(bool)
-    speed_cost = Required(int)
-    x_pos = Required(int)
-    y_pos = Required(int)
-    session = Required('Session')
 
 
-class RoundRecord(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    player = Required(Player)
-    unitstates = Set(UnitState)
-    active_ability = Required(ActiveAbility)
-    movement = Required(str)
-    session = Required('Session')
-    turn_number = Required(int)
-    x_pos_from = Required(int)
-    y_pos_from = Required(int)
-    x_pos_to = Required(int)
-    y_pos_to = Required(int)
-    round = Required('Round')
-    unit = Required('Unit')
 
 
-class Session(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    Date = Required(date)
-    players = Set(Player)
-    weapons = Set(Weapon)
-    armours = Set(Armour)
-    passive_abilities = Set(PassiveAbility)
-    active_abilities = Set(ActiveAbility)
-    round_logs = Set(RoundRecord)
-    ActiveTurnNum = Required(int)
-    ActivePlayer = Required(int)
-    map_tiles = Set(MapTile)
-    rounds = Set('Round')
-    map_height = Required(int)
-    map_width = Required(int)
-    state = Required(str)
 
 
-class User(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    players = Set(Player)
-    nickname = Required(str)
 
 
-class Unit(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    player = Required(Player)
-    name = Required(str)
-    unit_states = Set(UnitState)
-    round_logs = Set(RoundRecord)
+'''
 
+import sqlite3
+from database_init import *
 
-class Round(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    session = Required(Session)
-    unit_states = Set(UnitState)
-    number = Required(int)
-    round_logs = Set(RoundRecord)
+@db_session
+def add_new_player():
+    pl1 = User(players=input('players: '), nickname=input('nick: '))
+    commit()
 
+add_new_player()
 
-db.generate_mapping(create_tables=True)
+'''
 
+'''
+class Arena_unit():
+    def __init__(self, player, unit_id, armour, unit_class, strength, toughness, reaction, spirit, speed, vitality, hp, mp, mp_regen):
+        self.player = player
+        self.unit_id = unit_id
+        self.armour = armour
+        self.unit_class = unit_class
+        self.strength = strength
+        self.toughness = toughness
+        self.reaction = reaction
+        self.spirit = spirit
+        self.speed = speed
+        self.vitality = vitality
+        self.hp = hp
+        self.mp = mp
+        self.mp_regen = mp_regen
+'''

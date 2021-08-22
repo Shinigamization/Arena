@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Character_creation</title>
+</head>
+<body>
+<form method="post">
+        <label>Player = Tima</label>
+        <input type="text" name="player" />
+<br>
+        <label>Unit_id = Tima1</label>
+        <input type="text" name="unit_id" />
+<br>
+        <label>Select armour</label>
+        <select id="armour" name="armour">
+                {% for n in arm_bd.keys(): %}
+                <option value="{{ n }}">{{ n }}</option>
+                {% endfor %}
+        </select>
+<br>
+        <label>Select weapon</label>
+        <select id="weapon" name="weapon">
+                {% for n in w_bd.keys(): %}
+                <option value="{{ n }}">{{ n }}</option>
+                {% endfor %}
+        </select>
+<br>
+        <label>Unit_class = Fighter</label>
+        <input type="text" name="unit_class" />
+<br>
+        <label>Strength = 3</label>
+        <input type="text" name="strength" />
+<br>
+        <label>Toghness = 3</label>
+        <input type="text" name="toughness" />
+<br>
+        <label>Reaction = 3</label>
+        <input type="text" name="reaction" />
+<br>
+        <label>Spirit = 2</label>
+        <input type="text" name="spirit" />
+<br>
+        <label>Speed = 3</label>
+        <input type="text" name="speed" />
+<br>
+        <label>Vitality = 3</label>
+        <input type="text" name="vitality" />
+<br>
+        <label>HP = 15</label>
+        <input type="text" name="hp" />
+<br>
+        <label>MP = 100</label>
+        <input type="text" name="mp" />
+<br>
+        <label>MP regen = 20</label>
+        <input type="text" name="mp_regen" />
+<br>
+    <div>
+        <input type="submit" />
+    </div>
+  </form>
+
+</body>
+</html>
