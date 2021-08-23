@@ -1,13 +1,14 @@
 import json
+import itertools
 
 
 #Создаёт dict персонажа в базе данных с ключом по ID
 def create_char(player, unit_id, armour, weapon, unit_class, strength, toughness, reaction, spirit, speed, vitality, hp, mp, mp_regen):
     temp = {unit_id: [player, armour, weapon, unit_class, strength, toughness, reaction, spirit, speed, vitality, hp, mp, mp_regen]}
-    with open('session1/unit_db.json', 'r') as file:
+    with open('session1/session_init/unit_db.json', 'r') as file:
         unit_db = json.load(file)
     unit_db.update(temp)
-    with open('session1/unit_db.json', 'w') as file:
+    with open('session1/session_init/unit_db.json', 'w') as file:
         json.dump(unit_db, file)
 
 
@@ -21,10 +22,10 @@ def db_flush(session, db):
 #            <!-- weapon_name, damage_mod, w_hp, w_accuracy, weight, ignore_arm, w_range, damage_type   -->
 def create_weapon(weapon_name, damage_mod, w_hp, w_accuracy, w_weight, ignore_arm, w_range, damage_type):
     temp = {weapon_name: [damage_mod, w_hp, w_accuracy, w_weight, ignore_arm, w_range, damage_type]}
-    with open ('session1/weapons_db.json', 'r') as file:
+    with open('session1/session_init/weapons_db.json', 'r') as file:
         w_db = json.load(file)
     w_db.update(temp)
-    with open('session1/weapons_db.json', 'w') as file:
+    with open('session1/session_init/weapons_db.json', 'w') as file:
         json.dump(w_db, file)
 
 
@@ -32,15 +33,24 @@ def create_weapon(weapon_name, damage_mod, w_hp, w_accuracy, w_weight, ignore_ar
 #            <!-- arm_name, arm_mod, arm_hp, weight, element_type   -->
 def create_armour(armour_name, arm_mod, arm_hp, arm_weight, element_type):
     temp = {armour_name: [arm_mod, arm_hp, arm_weight, element_type]}
-    with open ('session1/armour_db.json', 'r') as file:
+    with open('session1/session_init/armour_db.json', 'r') as file:
         arm_db = json.load(file)
     arm_db.update(temp)
-    with open('session1/armour_db.json', 'w') as file:
+    with open('session1/session_init/armour_db.json', 'w') as file:
         json.dump(arm_db, file)
 
 
+def map_init(x):
+    with open('session1/map_tiles.json', 'w') as file:
+        map = {}
+        for a in range(x + 1):
+            for b, z in list(enumerate(range(x), start=1)):
+                c = str(a) + '_' + str(b)
+                map[c] = 'Empty'
+        json.dump(map, file)
 
 
+#map_init(13)
 #db_flush(1, 'armour')
 #create_char(1, 1,1,1,1,1,1,1,1,1,1,1,1,1)
 
