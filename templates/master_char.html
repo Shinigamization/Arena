@@ -7,11 +7,32 @@
 <body>
 <form method="post">
         <label>Player = Tima</label>
-        <input type="text" name="player" />
+        <select type="text" name="player" >
+                <option value="Tima">Tima</option>
+                <option value="Dalamar">Dalamar</option>
+                <option value="Dima">Dima</option>
+                <option value="Shini">Shini</option>
+        </select>
 <br>
         <label>Unit_id = Tima1</label>
-        <input type="text" name="unit_id" />
+        <select type="text" name="unit_id" >
+                <option value="Tima1">Tima1</option>
+                <option value="Tima2">Tima2</option>
+                <option value="Tima3">Tima3</option>
+                <option value="Dalamar1">Dalamar1</option>
+                <option value="Dalamar2">Dalamar2</option>
+                <option value="Dalamar3">Dalamar3</option>
+                <option value="Dima1">Dima1</option>
+                <option value="Dima2">Dima2</option>
+                <option value="Dima3">Dima3</option>
+                <option value="Shini1">Shini1</option>
+                <option value="Shini2">Shini2</option>
+                <option value="Shini3">Shini3</option>
+        </select>
 <br>
+                <label>Coordinates = 1_1</label>
+        <input type="text" name="coordinates" />
+        <br>
         <label>Select armour</label>
         <select id="armour" name="armour">
                 {% for n in arm_bd.keys(): %}

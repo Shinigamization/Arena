@@ -10,6 +10,7 @@ class Boez:
         self.name = name
         self.coordinates = coordinates
 
+turn_phase = ['move_phase', 'attack_phase']
 
 boizi_proverka = {
     'Tima1': '2_2',
@@ -35,11 +36,6 @@ player_fighters = {
 
 pl_active_turn = ['Tima', 'Dalamar', 'Shini', 'Dima']
 
-'''
-@app.route('/new', methods=['GET', 'POST'])
-def new_session():
-'''
-
 @app.route('/', methods=['GET', 'POST'])
 def start_page():
     if request.form.get('session_init'):
@@ -48,13 +44,23 @@ def start_page():
     return render_template('start.html')
 
 
-
 # Основная страница арены
 @app.route('/arena', methods=['GET', 'POST'])
 def arena():
+    global turn_phase
     global pl_active_turn
     global player_fighters
     if request.method == 'POST':
+        if turn_phase[0] == 'move_phase':
+            turn_phase = turn_phase.reverse()
+
+
+
+        else:
+            turn_phase.reverse()
+
+
+
         b = Boez(request.form.get('fighter_name'), request.form.get('coordinates'))
         boizi_proverka[b.name] = b.coordinates
         pl_active_turn.append(pl_active_turn[0])
@@ -81,13 +87,14 @@ def master_char_creation():
         w_bd = json.load(file)
     if request.method == 'POST':
         try:
-            char_init = [request.form.get('player'), request.form.get('unit_id'),
+            char_init = [request.form.get('unit_id'), request.form.get('coordinates'), request.form.get('player'),
                          request.form.get('armour'), request.form.get('weapon'),
                          request.form.get('unit_class'), request.form.get('strength'),
                          request.form.get('toughness'), request.form.get('reaction'),
                          request.form.get('spirit'), request.form.get('speed'),
                          request.form.get('vitality'), request.form.get('hp'),
                          request.form.get('mp'), request.form.get('mp_regen')]
+            print(char_init)
             create_char(*char_init)
             return redirect(url_for('db_result', db_result_var=f'Создан персонаж {char_init}'))
         except:
