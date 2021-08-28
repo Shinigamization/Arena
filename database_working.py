@@ -64,6 +64,7 @@ def create_unit_classes():
     global all_units_list
     with open('session1/session_init/unit_db.json', 'r') as file:
         unit_db = dict(json.load(file))
+        #try:
         if True:
             Tima1 = UnitState(*unit_db['Tima1'])
             #Tima2 = UnitState(*unit_db['Tima2'])
