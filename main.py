@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, url_for, redirect
 from database_init import *
+from database_working import *
 
 app = Flask(__name__)
 
@@ -39,9 +40,17 @@ pl_active_turn = ['Tima', 'Dalamar', 'Shini', 'Dima']
 def new_session():
 '''
 
+@app.route('/', methods=['GET', 'POST'])
+def start_page():
+    if request.form.get('session_init'):
+
+        return redirect(url_for('arena'))
+    return render_template('start.html')
+
+
 
 # Основная страница арены
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/arena', methods=['GET', 'POST'])
 def arena():
     global pl_active_turn
     global player_fighters
