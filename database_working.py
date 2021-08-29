@@ -5,6 +5,7 @@ import os
 import random
 
 all_units_list = []
+all_current_coordinates = {}
 
 class UnitWeapon:
     def __init__(self, weapon_name, damage_mod, w_hp, w_accuracy, w_weight, ignore_arm, w_range, damage_type):
@@ -64,28 +65,11 @@ def create_unit_classes():
     global all_units_list
     with open('session1/session_init/unit_db.json', 'r') as file:
         unit_db = dict(json.load(file))
-        #try:
-        if True:
-            Tima1 = UnitState(*unit_db['Tima1'])
-            #Tima2 = UnitState(*unit_db['Tima2'])
-            #Tima3 = UnitState(*unit_db['Tima3'])
-            Dima1 = UnitState(*unit_db['Dima1'])
-            #Dima2 = UnitState(*unit_db['Dima2'])
-            #Dima3 = UnitState(*unit_db['Dima3'])
-            #Dalamar1 = UnitState(*unit_db['Dalamar1'])
-            #Dalamar2 = UnitState(*unit_db['Dalamar2'])
-            #Dalamar3 = UnitState(*unit_db['Dalamar3'])
-            #Shini1 = UnitState(*unit_db['Shini1'])
-            #Shini2 = UnitState(*unit_db['Shini2'])
-            #Shini3 = UnitState(*unit_db['Shini3'])
-            #all_units_list = [Tima1, Tima2, Tima3, Dima1, Dima2, Dima3, Dalamar1, Dalamar2, Dalamar3,
-            # Shini1, Shini2, Shini3]
-            all_units_list = [Tima1, Dima1]
-            for n in all_units_list:
-                update_unit(n)
-        #except:
-        #    print('Не все юниты созданы')
-        print(all_units_list)
+        for unit_db_ids in unit_db.keys():
+            all_units_list.append(exec(f'{unit_db_ids} = 1'))
+        for counter in range(len(all_units_list)):
+            all_units_list[counter] = UnitState(*list(unit_db.values())[counter])
+    print(all_units_list)
 
 '''
         for each_unit in unit_db.values():
@@ -93,6 +77,53 @@ def create_unit_classes():
             #all_units_list = UnitState(*each_unit)
             all_units_list.append(exec(f'{each_unit[0]} = {UnitState(*each_unit)}'))
     print(all_units_list)
+
+        if unit_db['Tima1']:
+            Tima1 = UnitState(*unit_db['Tima1'])
+            all_units_list.append(Tima1)
+        if unit_db['Tima2']:
+            Tima2 = UnitState(*unit_db['Tima2'])
+            all_units_list += Tima2
+        if unit_db['Tima3']:
+            Tima3 = UnitState(*unit_db['Tima3'])
+            all_units_list += Tima3
+        if unit_db['Dima1']:
+            Dima1 = UnitState(*unit_db['Dima1'])
+            all_units_list += Dima1
+        if unit_db['Dima2']:
+            Dima2 = UnitState(*unit_db['Dima2'])
+            all_units_list += Dima2
+        if unit_db['Dima3']:
+            Dima3 = UnitState(*unit_db['Dima3'])
+            all_units_list += Dima3
+        if unit_db['Dalamar1']:
+            Dalamar1 = UnitState(*unit_db['Dalamar1'])
+            all_units_list += Dalamar1
+        if unit_db['Dalamar2']:
+            Dalamar2 = UnitState(*unit_db['Dalamar2'])
+            all_units_list += Dalamar2
+        if unit_db['Dalamar3']:
+            Dalamar3 = UnitState(*unit_db['Dalamar3'])
+            all_units_list += Dalamar3
+        if unit_db['Shini1']:
+            Shini1 = UnitState(*unit_db['Shini1'])
+            all_units_list += Shini1
+        if unit_db['Shini2']:
+            Shini2 = UnitState(*unit_db['Shini2'])
+            all_units_list += Shini2
+        if unit_db['Shini3']:
+            Shini3 = UnitState(*unit_db['Shini3'])
+            all_units_list += Shini3
+            #all_units_list = [Tima1, Tima2, Tima3, Dima1, Dima2, Dima3, Dalamar1, Dalamar2, Dalamar3,
+            # Shini1, Shini2, Shini3]
+            #all_units_list = [Tima1, Dima1]
+            #for n in all_units_list:
+            #    update_unit(n)
+        #except:
+        #    print('Не все юниты созданы')
+        print(all_units_list)
+
+
 
     for any_file in os.listdir('session1/units/'):
         with open(f'session1/units/{any_file}', 'r') as file:
@@ -133,6 +164,10 @@ def hit_calc(attacker: UnitState, defender: UnitState):
     else:
         return 0, 0, 0, 'MISS!'
 
+def all_coordinates():
+    for each_unit in all_units_list:
+        all_current_coordinates[f'{each_unit.coordinates}'] = [each_unit.unit_id ,each_unit]
+    return all_current_coordinates
 
 '''
 with open('session1/session_init/unit_db.json', 'r') as file:
@@ -143,4 +178,5 @@ with open('session1/session_init/unit_db.json', 'r') as file:
 '''
 create_unit_classes()
 #print(all_units_list)
+print(all_coordinates())
 
