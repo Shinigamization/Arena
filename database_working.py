@@ -1,11 +1,13 @@
 # Описание классов, функция записи текущего состояния юнита в БД, функции попадания, атаки
 
 import json
-import os
 import random
+from typing import List, Any
 
 all_units_list = []
 all_current_coordinates = {}
+unique_players = []
+
 
 class UnitWeapon:
     def __init__(self, weapon_name, damage_mod, w_hp, w_accuracy, w_weight, ignore_arm, w_range, damage_type):
@@ -59,6 +61,9 @@ class UnitState:
         self.mp_regen = mp_regen
         self.direction = 'DOWN'
 
+    def unit_coordinate_update(self, coordinate):
+        self.coordinates = coordinate
+
 
 #
 def create_unit_classes():
@@ -69,7 +74,10 @@ def create_unit_classes():
             all_units_list.append(exec(f'{unit_db_ids} = 1'))
         for counter in range(len(all_units_list)):
             all_units_list[counter] = UnitState(*list(unit_db.values())[counter])
-    print(all_units_list)
+        for each_unit in all_units_list:
+            unique_players.append(each_unit.player) if each_unit.player not in unique_players else unique_players
+    # print(all_units_list)
+
 
 '''
         for each_unit in unit_db.values():
@@ -133,11 +141,13 @@ def create_unit_classes():
                 all_units_list.append(exec(f'{cur_un_list_elem.keys()} = {UnitState(cur_un_list_elem.values())}'))
 '''
 
+
 # сохраняет в отдельную БД лог состояний юнита, чтобы можно было откатить на определённый раунд
 def update_unit(unit_state: UnitState):
     with open(f'session1/units/{unit_state.unit_id}.json', 'w+') as file:
         unit_entry = {unit_state.current_round: [unit_state.coordinates, unit_state.active_status, unit_state.player,
-                                                 unit_state.armour.dict_return(), unit_state.weapon.dict_return(), unit_state.unit_class, unit_state.strength,
+                                                 unit_state.armour.dict_return(), unit_state.weapon.dict_return(),
+                                                 unit_state.unit_class, unit_state.strength,
                                                  unit_state.toughness, unit_state.reaction, unit_state.spirit,
                                                  unit_state.speed, unit_state.vitality, unit_state.hp, unit_state.mp,
                                                  unit_state.mp_regen, unit_state.direction]}
@@ -152,7 +162,8 @@ def attack_calc(attacker: UnitState, defender: UnitState):
         return armour_hp_lost, weapon_hp_lost, 0, 'HIT!'
     else:
         armour_hp_lost = defender.armour.arm_hp - attacker.weapon.damage_mod
-        unit_hp_lost = ((attacker.weapon.damage_mod - defender.armour.arm_mod)*(attacker.strength/defender.toughness))
+        unit_hp_lost = (
+                    (attacker.weapon.damage_mod - defender.armour.arm_mod) * (attacker.strength / defender.toughness))
         weapon_hp_lost = defender.armour.arm_hp
         return armour_hp_lost, weapon_hp_lost, unit_hp_lost, 'HIT!'
 
@@ -164,10 +175,16 @@ def hit_calc(attacker: UnitState, defender: UnitState):
     else:
         return 0, 0, 0, 'MISS!'
 
-def all_coordinates():
+
+def update_all_coordinates(moved_unit, coordinates_now):
+    for n in all_units_list:  # Вспомнить как писать цикл for и if в одну строку
+        if n.unit_id == (moved_unit):
+            n.unit_coordinate_update(coordinates_now)
+    all_current_coordinates = {}
     for each_unit in all_units_list:
-        all_current_coordinates[f'{each_unit.coordinates}'] = [each_unit.unit_id ,each_unit]
+        all_current_coordinates[f'{each_unit.coordinates}'] = [each_unit.unit_id, each_unit]
     return all_current_coordinates
+
 
 '''
 with open('session1/session_init/unit_db.json', 'r') as file:
@@ -176,7 +193,8 @@ with open('session1/session_init/unit_db.json', 'r') as file:
         s = UnitState(*n)
         print(s.weapon.weapon_name)
 '''
-create_unit_classes()
-#print(all_units_list)
-print(all_coordinates())
-
+# create_unit_classes()
+# print(all_units_list)
+# update_unit()
+# print(update_all_coordinates())
+# print(unique_players)

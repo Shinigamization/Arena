@@ -10,6 +10,7 @@ class Boez:
         self.name = name
         self.coordinates = coordinates
 
+
 turn_phase = ['move_phase', 'attack_phase']
 
 boizi_proverka = {
@@ -36,10 +37,14 @@ player_fighters = {
 
 pl_active_turn = ['Tima', 'Dalamar', 'Shini', 'Dima']
 
+
 @app.route('/', methods=['GET', 'POST'])
 def start_page():
     if request.form.get('session_init'):
-
+        create_unit_classes()
+        for each_unit in all_units_list:
+            update_unit(each_unit)
+            all_current_coordinates[f'{each_unit.coordinates}'] = [each_unit.unit_id, each_unit]
         return redirect(url_for('arena'))
     return render_template('start.html')
 
@@ -51,25 +56,32 @@ def arena():
     global pl_active_turn
     global player_fighters
     if request.method == 'POST':
+        '''
+        Заготовка для фаз хода
         if turn_phase[0] == 'move_phase':
             turn_phase = turn_phase.reverse()
 
-
-
         else:
             turn_phase.reverse()
+        '''
 
-
-
+        '''
+        Было для тестовой базы движения, потом уберу
         b = Boez(request.form.get('fighter_name'), request.form.get('coordinates'))
         boizi_proverka[b.name] = b.coordinates
+        '''
+        global all_current_coordinates
+        all_current_coordinates = update_all_coordinates(request.form.get('fighter_name'), request.form.get('coordinates'))
+
         pl_active_turn.append(pl_active_turn[0])
         pl_active_turn.pop(0)
         boizi.clear()
         for k, v in boizi_proverka.items():
             boizi[v] = k
-        return redirect(url_for('arena', boizi=boizi, pl_active_turn=pl_active_turn, player_fighters=player_fighters))
-    return render_template('arena.html', boizi=boizi, pl_active_turn=pl_active_turn, player_fighters=player_fighters)
+        return redirect(url_for('arena', boizi=boizi, pl_active_turn=pl_active_turn, player_fighters=player_fighters,
+                                all_units_list=all_units_list, all_current_coordinates=all_current_coordinates, turn_phase=turn_phase, unique_players=unique_players))
+    return render_template('arena.html', boizi=boizi, pl_active_turn=pl_active_turn, player_fighters=player_fighters,
+                           all_units_list=all_units_list, all_current_coordinates=all_current_coordinates, turn_phase=turn_phase, unique_players=unique_players)
 
 
 # Базовая страница мастера для выбора инструментов подготовки к сессии
@@ -135,5 +147,11 @@ def db_result():
     return render_template('db_result.html', db_result_var=db_result_var)
 
 
+@app.route('/stats', methods=['GET', 'POST'])
+def unit_stats():
+    pass
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+
