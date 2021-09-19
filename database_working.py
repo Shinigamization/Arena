@@ -2,40 +2,51 @@
 
 import json
 import random
+import functools
 from typing import List, Any
 
 all_units_list = []
 all_current_coordinates = {}
 unique_players = []
-
+turn_phase = ['move_phase', 'attack_phase']
+#pl_active_turn = ['Dima', 'Tima', 'Dima', 'Tima', 'Dima', 'Tima']
+pl_active_turn = []
+current_active_unit = []
+possible_attack_points = []
+log_comment = 'Nothing'
 
 class UnitWeapon:
     def __init__(self, weapon_name, damage_mod, w_hp, w_accuracy, w_weight, ignore_arm, w_range, damage_type):
         self.weapon_name = weapon_name
-        self.damage_mod = damage_mod
-        self.w_hp = w_hp
-        self.w_accuracy = w_accuracy
-        self.w_weight = w_weight
-        self.ignore_arm = ignore_arm
-        self.w_range = w_range
+        self.damage_mod = float(damage_mod.replace(',', '.'))
+        self.w_hp = float(w_hp.replace(',', '.'))
+        self.w_accuracy = int(w_accuracy)
+        self.w_weight = float(w_weight.replace(',', '.'))
+        self.ignore_arm = int(ignore_arm)
+        self.w_range = int(w_range)
         self.damage_type = damage_type
 
     def dict_return(self):
         return {self.weapon_name: [self.weapon_name, self.damage_mod, self.w_hp, self.w_accuracy, self.w_weight,
                                    self.ignore_arm, self.w_range, self.damage_type]}
 
+    def weapon_hp_loss(self, hp_loss):
+        self.w_hp = self.w_hp - hp_loss
+
 
 class UnitArmour:
     def __init__(self, armour_name, arm_mod, arm_hp, arm_weight, element_type):
         self.armour_name = armour_name
-        self.arm_mod = arm_mod
-        self.arm_hp = arm_hp
-        self.arm_weight = arm_weight
+        self.arm_mod = float(arm_mod.replace(',', '.'))
+        self.arm_hp = float(arm_hp.replace(',', '.'))
+        self.arm_weight = float(arm_weight.replace(',', '.'))
         self.element_type = element_type
 
     def dict_return(self):
         return {self.armour_name: [self.armour_name, self.arm_mod, self.arm_hp, self.arm_weight, self.element_type]}
 
+    def arm_hp_loss(self, hp_loss):
+        self.arm_hp = self.arm_hp - hp_loss
 
 #
 class UnitState:
@@ -50,28 +61,33 @@ class UnitState:
         self.armour = UnitArmour(*armour)
         self.weapon = UnitWeapon(*weapon)
         self.unit_class = unit_class
-        self.strength = strength
-        self.toughness = toughness
-        self.reaction = reaction
-        self.spirit = spirit
-        self.speed = speed
-        self.vitality = vitality
-        self.hp = hp
-        self.mp = mp
-        self.mp_regen = mp_regen
+        self.strength = int(strength)
+        self.toughness = int(toughness)
+        self.reaction = int(reaction)
+        self.spirit = int(spirit)
+        self.speed = int(speed)
+        self.vitality = int(vitality)
+        self.hp = float(hp.replace(',', '.'))
+        self.mp = int(mp)
+        self.mp_regen = int(mp_regen)
         self.direction = 'DOWN'
 
     def unit_coordinate_update(self, coordinate):
         self.coordinates = coordinate
 
+    def unit_hp_loss(self, hp_loss):
+        self.hp = self.hp - hp_loss
 
-#
+
+# Из .json базы куда записываются данные от мастера по юнитам, создаётся список объектов класса UnitState
 def create_unit_classes():
     global all_units_list
     with open('session1/session_init/unit_db.json', 'r') as file:
         unit_db = dict(json.load(file))
+        # создаёт отдельную переменную под каждый объект
         for unit_db_ids in unit_db.keys():
             all_units_list.append(exec(f'{unit_db_ids} = 1'))
+        # трансформирует каждый объект в объект класса UnitState
         for counter in range(len(all_units_list)):
             all_units_list[counter] = UnitState(*list(unit_db.values())[counter])
         for each_unit in all_units_list:
@@ -159,12 +175,17 @@ def attack_calc(attacker: UnitState, defender: UnitState):
     if attacker.weapon.damage_mod <= defender.armour.arm_mod:
         armour_hp_lost = defender.armour.arm_hp - attacker.weapon.damage_mod
         weapon_hp_lost = attacker.weapon.damage_mod
+        attacker.weapon.weapon_hp_loss(weapon_hp_lost)
+        defender.armour.arm_hp_loss(armour_hp_lost)
         return armour_hp_lost, weapon_hp_lost, 0, 'HIT!'
     else:
         armour_hp_lost = defender.armour.arm_hp - attacker.weapon.damage_mod
         unit_hp_lost = (
                     (attacker.weapon.damage_mod - defender.armour.arm_mod) * (attacker.strength / defender.toughness))
         weapon_hp_lost = defender.armour.arm_hp
+        attacker.weapon.weapon_hp_loss(weapon_hp_lost)
+        defender.armour.arm_hp_loss(armour_hp_lost)
+        defender.unit_hp_loss(unit_hp_lost)
         return armour_hp_lost, weapon_hp_lost, unit_hp_lost, 'HIT!'
 
 
@@ -185,6 +206,66 @@ def update_all_coordinates(moved_unit, coordinates_now):
         all_current_coordinates[f'{each_unit.coordinates}'] = [each_unit.unit_id, each_unit]
     return all_current_coordinates
 
+
+# Создание последовательности ходов
+def create_move_sequence():
+    global pl_active_turn
+    for n in range(3):
+        for each in unique_players:
+            pl_active_turn.append(each)
+
+
+# Функция смены фазы хода
+def turn_phase_forward():
+    global turn_phase
+    turn_phase.reverse()
+
+
+# Функция смены хода
+def turn_forward():
+    global pl_active_turn
+    if turn_phase[0] != 'move_phase':
+        pl_active_turn.pop(0)
+    turn_phase_forward()
+    if pl_active_turn == []:
+        create_move_sequence()
+        round_forward()
+
+
+# Функция смены раунда
+def round_forward():
+    pass
+
+
+# Вернуть нужный Юнит объект от unit_id строки
+def return_unit_object_by_name(func):
+    @functools.wraps(func)
+    def unit_by_name(unit):
+        for n in all_units_list:
+            if n.unit_id == unit:
+                return func(n)
+    return unit_by_name
+
+
+# определение возможных целей для атаки
+@return_unit_object_by_name
+def possible_attack_targets(unit: UnitState):
+    starting_point = unit.coordinates.split('_')
+    possible_attack_cells = []
+    if unit.weapon.w_range == 1:
+        for n in range(-unit.weapon.w_range, unit.weapon.w_range+1):
+            new_x = (str(int(starting_point[0]) + n) + '_' + str(int(starting_point[1])))
+            new_y = (str(int(starting_point[0])) + '_' + str(int(starting_point[1]) + n))
+            possible_attack_cells.append(new_x)
+            possible_attack_cells.append(new_y)
+        possible_attack_cells.remove(unit.coordinates)
+        possible_attack_cells.remove(unit.coordinates)
+        return possible_attack_cells
+
+
+@return_unit_object_by_name
+def determine_unit(unit):
+    return unit
 
 '''
 with open('session1/session_init/unit_db.json', 'r') as file:

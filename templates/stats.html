@@ -1,12 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
+{% for each_unit in unit_page_return %}
 <div>
-<h1>данные</h1>
+    <h1>{{ each_unit.unit_id }}</h1>
+    <table>
+        HP = {{ each_unit.hp }}
+        MP = {{ each_unit.mp }}
+        Armour HP = {{ each_unit.armour.arm_hp }}
+        Armour Mod = {{ each_unit.armour.arm_mod }}
+        Weapon = {{ each_unit.weapon.dict_return() }}
+    </table>
 </div>
-</body>
-</html>
+{% endfor %}
+{% endblock %}
+
+<!-- unit_id, coordinates, player, armour, weapon, unit_class, strength,
+                 toughness, reaction, spirit, speed, vitality, hp, mp -->
+<!-- armour_name, arm_mod, arm_hp, arm_weight, element_type -->
+<!-- weapon_name, damage_mod, w_hp, w_accuracy, w_weight, ignore_arm, w_range, damage_type -->

@@ -1086,14 +1086,16 @@
     <h1>Unit stats:</h1>
     <form method="post">
       {% for n in unique_players %}
-      <a href="">{{ 'Посмотреть на '+n }}</a>
+      <a href="/stats/{{ n }}">{{ 'Посмотреть на '+n }}</a>
       {% endfor %}
     </form>
-
+  <br>
+    <h3>{{ log_comment }}</h3>
   </div>
   <div class="lower_div">
     <h1>Action Window:</h1>
 <form method="post">
+  {% if turn_phase[0] == 'move_phase' %}
     <div>
         <label for="fighter_name">Choose your fighter:</label>
         <select id="fighter_name" name="fighter_name">
@@ -1106,7 +1108,15 @@
         <label>Coordinates</label>
         <input type="text" name="coordinates" />
     </div>
-    <div>
+  {% endif %}
+  {% if turn_phase[0] == 'attack_phase' %}
+   <select id="attack_direction" name="attack_direction">
+          {% for n in possible_attack_points %}
+            <option value="{{ n }}">{{ n }}</option>
+          {% endfor %}
+            <option value="No_attack">No_attack</option>
+        </select>
+<!--    <div>
       <label for="attack_direction">Attack direction:</label>
         <select id="attack_direction" name="attack_direction">
             <option value="UP">&#8593;</option>
@@ -1116,6 +1126,8 @@
             <option value="NO">No attack</option>
         </select>
     </div>
+    -->
+  {% endif %}
     <div>
         <input type="submit" />
     </div>

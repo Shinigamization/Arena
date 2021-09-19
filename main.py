@@ -5,39 +5,6 @@ from database_working import *
 app = Flask(__name__)
 
 
-class Boez:
-    def __init__(self, name, coordinates):
-        self.name = name
-        self.coordinates = coordinates
-
-
-turn_phase = ['move_phase', 'attack_phase']
-
-boizi_proverka = {
-    'Tima1': '2_2',
-    'Dal1': '2_12',
-    'Shini1': '12_12',
-    'Dima1': '12_2'
-}
-
-boizi = {
-    '2_2': 'Tima1',
-    '2_12': 'Dal1',
-    '12_12': 'Shini1',
-    '12_2': 'Dima1'
-}
-
-player_fighters = {
-    'Tima': ['Tima1', 'Tima2'],
-    'Dalamar': ['Dal1'],
-    'Shini': ['Shini1'],
-    'Dima': ['Dima1']
-
-}
-
-pl_active_turn = ['Tima', 'Dalamar', 'Shini', 'Dima']
-
-
 @app.route('/', methods=['GET', 'POST'])
 def start_page():
     if request.form.get('session_init'):
@@ -45,6 +12,7 @@ def start_page():
         for each_unit in all_units_list:
             update_unit(each_unit)
             all_current_coordinates[f'{each_unit.coordinates}'] = [each_unit.unit_id, each_unit]
+        create_move_sequence()
         return redirect(url_for('arena'))
     return render_template('start.html')
 
@@ -54,34 +22,30 @@ def start_page():
 def arena():
     global turn_phase
     global pl_active_turn
-    global player_fighters
+    global current_active_unit
+    global possible_attack_points
+    global log_comment
     if request.method == 'POST':
-        '''
-        Заготовка для фаз хода
-        if turn_phase[0] == 'move_phase':
-            turn_phase = turn_phase.reverse()
-
-        else:
-            turn_phase.reverse()
-        '''
-
-        '''
-        Было для тестовой базы движения, потом уберу
-        b = Boez(request.form.get('fighter_name'), request.form.get('coordinates'))
-        boizi_proverka[b.name] = b.coordinates
-        '''
         global all_current_coordinates
-        all_current_coordinates = update_all_coordinates(request.form.get('fighter_name'), request.form.get('coordinates'))
-
-        pl_active_turn.append(pl_active_turn[0])
-        pl_active_turn.pop(0)
-        boizi.clear()
-        for k, v in boizi_proverka.items():
-            boizi[v] = k
-        return redirect(url_for('arena', boizi=boizi, pl_active_turn=pl_active_turn, player_fighters=player_fighters,
-                                all_units_list=all_units_list, all_current_coordinates=all_current_coordinates, turn_phase=turn_phase, unique_players=unique_players))
-    return render_template('arena.html', boizi=boizi, pl_active_turn=pl_active_turn, player_fighters=player_fighters,
-                           all_units_list=all_units_list, all_current_coordinates=all_current_coordinates, turn_phase=turn_phase, unique_players=unique_players)
+        all_current_coordinates = update_all_coordinates(request.form.get('fighter_name'),
+                                                         request.form.get('coordinates'))
+        if request.form.get('fighter_name'):
+            current_active_unit = request.form.get('fighter_name')
+        possible_attack_points = possible_attack_targets(current_active_unit)
+        print(possible_attack_points)
+        if request.form.get('attack_direction') in possible_attack_points:
+            try:
+                print(all_current_coordinates)
+                log_comment = hit_calc(determine_unit(current_active_unit), all_current_coordinates['attack_direction'][1])
+            except:
+                log_comment = 'There was no target.'
+        turn_forward()
+        return redirect(url_for('arena', pl_active_turn=pl_active_turn,
+                                all_units_list=all_units_list, all_current_coordinates=all_current_coordinates,
+                                turn_phase=turn_phase, unique_players=unique_players, possible_attack_points=possible_attack_points, log_comment=log_comment))
+    return render_template('arena.html', pl_active_turn=pl_active_turn,
+                           all_units_list=all_units_list, all_current_coordinates=all_current_coordinates,
+                           turn_phase=turn_phase, unique_players=unique_players, possible_attack_points=possible_attack_points, log_comment=log_comment)
 
 
 # Базовая страница мастера для выбора инструментов подготовки к сессии
@@ -147,9 +111,14 @@ def db_result():
     return render_template('db_result.html', db_result_var=db_result_var)
 
 
-@app.route('/stats', methods=['GET', 'POST'])
-def unit_stats():
-    pass
+@app.route('/stats/<unique_player>')
+def unit_stats(unique_player):
+    unit_page = unique_players[unique_players.index(unique_player)]
+    unit_page_return = []
+    for n in all_units_list:
+        if n.player == unit_page:
+            unit_page_return.append(n)
+    return render_template('stats.html', unit_page_return=unit_page_return)
 
 
 if __name__ == '__main__':

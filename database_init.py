@@ -46,6 +46,13 @@ def create_armour(armour_name, arm_mod, arm_hp, arm_weight, element_type):
     with open('session1/session_init/armour_db.json', 'w') as file:
         json.dump(arm_db, file)
 
+# Я думаю клетки будут нужны как отдельный класс для реализации нормально движения с ценой по скорости и различными атрибутами
+class MapCell:
+    def __init__(self):
+        pass
+
+
+
 
 # Создание dict карты с ключами коорданами и 'Empty' содержанием с сторонами Х на Х клеток
 def map_init(x):
@@ -60,7 +67,7 @@ def map_init(x):
 
 # map_init(13)
 # db_flush(1, 'armour')
-create_char('Dima1', '3_1' ,'Dima','Test2','Test1','fight', 'str','thp','react','spir','speed','vit','hp','mp','mp_reg')
+#create_char('Dima1', '3_1' ,'Dima','Test2','Test1','fight', 'str','thp','react','spir','speed','vit','hp','mp','mp_reg')
 
 '''
 unit_id, coordinates, player, armour, weapon, unit_class, strength,
